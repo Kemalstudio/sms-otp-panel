@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\StoreDeviceRequest;
+use App\Http\Requests\UpdateDeviceRequest;
+use App\Models\Device;
+use App\Models\PairingCode;
+use App\Models\Project;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
+
+class DeviceController extends Controller
+{
+    public function index(Project $project): View
+    {
+        // The newest code, used or expired ones included: the view has to be
+        // able to say "code expired, generate a new one".
+        $pairingCode = $project->pairingCodes()->latest('id')->first();
+
+        return view('projects.devices.index', [
+            'project' => $project,
+            'devices' => $project->devices()->latest()->get(),
+            'onlineThresholdMinutes' => Device::ONLINE_THRESHOLD_MINUTES,
+            'throughputPerMinute' => $project->throughputPerMinute(),
+            'maxThroughput' => Device::MAX_THROUGHPUT_PER_MINUTE,
+            'pairingCode' => $pairingCode,
+            'pairingQr' => $pairingCode?->isUsable() ? $this->qrSvg($pairingCode) : null,
+        ]);
+    }
+
+    /**
+     * Registers a device row by hand. Normally a phone creates its own row by
+     * claiming a pairing code over /api/v1/devices/pair; this stays for
+     * placeholders added before the handset is in reach.
+     */
+    public function store(StoreDeviceRequest $request, Project $project): RedirectResponse
+    {
+        $project->devices()->create([
+            'name' => $request->validated('name'),
+            'status' => 'inactive',
+        ]);
+
+        return redirect()
+            ->route('projects.devices.index', $project)
+            ->with('status', 'Устройство добавлено. Подключите телефон по коду привязки.');
+    }
+
+    /**
+     * Номер SIM и пропускная способность — операторские настройки: телефон
+     * свой номер прочитать не может, а сколько SMS в минуту он потянет,
+     * зависит от аппарата, тарифа и оператора связи.
+     */
+    public function update(UpdateDeviceRequest $request, Project $project, Device $device): RedirectResponse
+    {
+        $device->update($request->validated());
+
+        return redirect()
+            ->route('projects.devices.index', $project)
+            ->with('status', 'Устройство «'.$device->name.'» обновлено.');
+    }
+
+    /**
+     * SVG so nothing depends on imagick/gd being present.
+     */
+    private function qrSvg(PairingCode $pairingCode): string
+    {
+        return (string) QrCode::format('svg')
+            ->size(200)
+            ->margin(1)
+            ->errorCorrection('M')
+            ->generate($pairingCode->qrPayload());
+    }
+}

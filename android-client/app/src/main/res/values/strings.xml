@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">OTP Gateway</string>
+
+    <string name="notification_channel">Состояние шлюза</string>
+    <string name="notification_channel_description">Постоянное уведомление, пока телефон работает как SMS-шлюз.</string>
+    <string name="notification_title">SMS-шлюз активен</string>
+    <string name="notification_online">На связи с сервером</string>
+    <string name="notification_offline">Нет связи с сервером</string>
+    <string name="notification_summary">%1$s · отправлено сегодня: %2$d</string>
+
+    <string name="alerts_channel">Сбои шлюза</string>
+    <string name="alerts_channel_description">Потеря связи с сервером и неотправленные SMS.</string>
+</resources>

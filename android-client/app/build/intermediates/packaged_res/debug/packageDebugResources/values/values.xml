@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ic_launcher_background">#4F46E5</color>
+    <color name="window_background">#F6F7FB</color>
+    <string name="alerts_channel">Сбои шлюза</string>
+    <string name="alerts_channel_description">Потеря связи с сервером и неотправленные SMS.</string>
+    <string name="app_name">OTP Gateway</string>
+    <string name="gcm_defaultSenderId" translatable="false">670406407262</string>
+    <string name="google_api_key" translatable="false">AIzaSyBQ8dJES84-btChW_0YG74HflJoRvPUCXg</string>
+    <string name="google_app_id" translatable="false">1:670406407262:android:763060d908b0c2f9e570cf</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBQ8dJES84-btChW_0YG74HflJoRvPUCXg</string>
+    <string name="google_storage_bucket" translatable="false">bilim-merkezi-5d3e5.firebasestorage.app</string>
+    <string name="notification_channel">Состояние шлюза</string>
+    <string name="notification_channel_description">Постоянное уведомление, пока телефон работает как SMS-шлюз.</string>
+    <string name="notification_offline">Нет связи с сервером</string>
+    <string name="notification_online">На связи с сервером</string>
+    <string name="notification_summary">%1$s · отправлено сегодня: %2$d</string>
+    <string name="notification_title">SMS-шлюз активен</string>
+    <string name="project_id" translatable="false">bilim-merkezi-5d3e5</string>
+    <style name="Theme.OtpGateway" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+    </style>
+</resources>

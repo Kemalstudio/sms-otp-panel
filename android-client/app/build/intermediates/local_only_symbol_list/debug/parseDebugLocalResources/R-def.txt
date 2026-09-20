@@ -1,0 +1,25 @@
+R_DEF: Internal format may change without notice
+local
+color ic_launcher_background
+color window_background
+drawable ic_launcher_foreground
+drawable ic_stat_gateway
+mipmap ic_launcher
+mipmap ic_launcher_round
+string alerts_channel
+string alerts_channel_description
+string app_name
+string gcm_defaultSenderId
+string google_api_key
+string google_app_id
+string google_crash_reporting_api_key
+string google_storage_bucket
+string notification_channel
+string notification_channel_description
+string notification_offline
+string notification_online
+string notification_summary
+string notification_title
+string project_id
+style Theme.OtpGateway
+xml data_extraction_rules

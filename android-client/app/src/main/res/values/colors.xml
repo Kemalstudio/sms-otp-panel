@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Painted before Compose takes over, so it has to match the light
+         background in Theme.kt or the first frame flashes white-on-dark. -->
+    <color name="window_background">#F6F7FB</color>
+</resources>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Тот же набор тестов, но на боевой СУБД.
+
+    Обычный phpunit.xml гоняет всё на sqlite :memory: — это быстро и годится
+    для ежедневной работы. Но шлюз живёт на Postgres, а различия между ними
+    (строгий GROUP BY, поведение enum, регистр идентификаторов) вылезают
+    только там. Этот конфиг нужен для CI и перед выкладкой:
+
+        docker compose up -d
+        vendor/bin/phpunit -c phpunit.pgsql.xml
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory>tests/Unit</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory>tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <source>
+        <include>
+            <directory>app</directory>
+        </include>
+    </source>
+    <php>
+        <env name="APP_ENV" value="testing"/>
+        <env name="APP_MAINTENANCE_DRIVER" value="file"/>
+        <env name="BCRYPT_ROUNDS" value="4"/>
+        <env name="CACHE_STORE" value="array"/>
+        <env name="DB_CONNECTION" value="pgsql"/>
+        <env name="DB_HOST" value="127.0.0.1"/>
+        <env name="DB_PORT" value="55432"/>
+        <env name="DB_DATABASE" value="otp_gateway_test"/>
+        <env name="DB_USERNAME" value="otp"/>
+        <env name="DB_PASSWORD" value="secret"/>
+        <env name="MAIL_MAILER" value="array"/>
+        <env name="PULSE_ENABLED" value="false"/>
+        <env name="QUEUE_CONNECTION" value="sync"/>
+        <env name="SESSION_DRIVER" value="array"/>
+        <env name="TELESCOPE_ENABLED" value="false"/>
+    </php>
+</phpunit>

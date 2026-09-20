@@ -1,0 +1,19 @@
+# Планировщик: уборки просрочек и проверка здоровья раз в минуту.
+#
+# Равнозначная альтернатива — строка в системном cron:
+#   * * * * * cd /var/www/otp-gateway && php artisan schedule:run >> /dev/null 2>&1
+
+[Unit]
+Description=OTP Gateway scheduler
+After=network.target postgresql.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/otp-gateway
+ExecStart=/usr/bin/php artisan schedule:work
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

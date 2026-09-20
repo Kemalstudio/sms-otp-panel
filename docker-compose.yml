@@ -1,0 +1,61 @@
+# Боевая пара для шлюза: Postgres вместо SQLite и Redis под очередь.
+#
+# SQLite здесь не «медленнее» — он просто не выдерживает того, что шлюзу нужно
+# делать постоянно: несколько воркеров queue:work пишут одновременно, и вместо
+# записи получают `database is locked`. Redis нужен по той же причине: очередь
+# в той же базе конкурирует за те же блокировки с самим приложением.
+#
+#   docker compose up -d
+#   php artisan migrate
+#
+# Данные лежат в именованных томах и переживают пересоздание контейнеров.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: otp-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-otp_gateway}
+      POSTGRES_USER: ${DB_USERNAME:-otp}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-secret}
+      # Инициализация с нужной локалью: сортировка по умолчанию у alpine-образа
+      # иначе зависит от хоста, а это ровно тот сюрприз, который вылезает
+      # через полгода на проде.
+      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+    ports:
+      # 55432, а не 5432: на машинах разработчиков стандартный порт часто занят
+      # нативным PostgreSQL, и контейнер не поднимается с невнятной ошибкой
+      # доступа к сокету. Наружу — только на localhost: база не должна торчать
+      # в сеть.
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - otp-postgres:/var/lib/postgresql/data
+    healthcheck:
+      # Приложение стартует раньше, чем Postgres готов принимать соединения;
+      # без проверки первый же artisan migrate падает на пустом месте.
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-otp} -d ${DB_DATABASE:-otp_gateway}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: otp-redis
+    restart: unless-stopped
+    # appendonly: очередь переживает перезапуск контейнера. Без него отправка
+    # кодов, стоявшая в очереди, просто исчезает.
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - otp-redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  otp-postgres:
+  otp-redis:

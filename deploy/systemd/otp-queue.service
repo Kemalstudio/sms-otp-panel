@@ -1,0 +1,23 @@
+# Вариант для systemd, если supervisor на сервере не используется.
+#
+#   sudo cp deploy/systemd/otp-queue.service /etc/systemd/system/
+#   sudo systemctl enable --now otp-queue
+
+[Unit]
+Description=OTP Gateway queue worker
+After=network.target postgresql.service redis.service
+
+[Service]
+User=www-data
+Group=www-data
+WorkingDirectory=/var/www/otp-gateway
+ExecStart=/usr/bin/php artisan queue:work redis --queue=default --sleep=3 --tries=3 --backoff=10 --max-time=3600
+Restart=always
+RestartSec=5
+# Мягкая остановка: воркер доделывает текущую задачу, а не бросает SMS на
+# полпути.
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target

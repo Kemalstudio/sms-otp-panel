@@ -58,6 +58,92 @@
             </x-flash>
         @endif
 
+        {{--
+            Приложение надо как-то донести до телефона. Кнопка отдаёт APK, а QR
+            рядом — чтобы телефон скачал его сам, не дожидаясь кабеля.
+        --}}
+        <section class="card-flush">
+            <div class="card-header">
+                <div>
+                    <h3 class="section-title">Приложение для телефона</h3>
+                    <p class="section-hint">
+                        Устанавливается на телефон с SIM-картой. Именно оно принимает команды
+                        шлюза и отправляет SMS.
+                    </p>
+                </div>
+
+                @if ($apk['available'])
+                    <a href="{{ route('app.download') }}"
+                       class="inline-flex items-center gap-2 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-500">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                        </svg>
+                        Скачать APK
+                    </a>
+                @endif
+            </div>
+
+            @if ($apk['available'])
+                <div class="flex flex-col gap-6 p-6 sm:flex-row sm:items-start">
+                    <div class="shrink-0 rounded-2xl bg-white p-3 ring-1 ring-ink-200 dark:ring-ink-700">
+                        {!! $apkQr !!}
+                    </div>
+
+                    <div class="min-w-0 space-y-3 text-sm">
+                        <p class="text-ink-700 dark:text-ink-300">
+                            Отсканируйте код телефоном — он откроет эту же панель и скачает файл.
+                        </p>
+
+                        <dl class="space-y-1.5 text-ink-500 dark:text-ink-400">
+                            <div class="flex gap-2">
+                                <dt>Размер:</dt>
+                                <dd class="tabular-nums text-ink-900 dark:text-ink-100">{{ $apk['size'] }}</dd>
+                            </div>
+                            <div class="flex gap-2">
+                                <dt>Собран:</dt>
+                                <dd class="text-ink-900 dark:text-ink-100">
+                                    {{ $apk['built_at']->format('d.m.Y H:i') }}
+                                    <span class="text-ink-400">· {{ $apk['built_at']->diffForHumans() }}</span>
+                                </dd>
+                            </div>
+                        </dl>
+
+                        <div class="rounded-xl bg-ink-50 p-3 text-xs text-ink-500 dark:bg-ink-950/50 dark:text-ink-400">
+                            <p class="font-medium text-ink-700 dark:text-ink-300">После скачивания</p>
+                            <p class="mt-1">
+                                Android спросит разрешение на установку из неизвестных источников —
+                                это нормально для приложения не из Play Store. Дальше: открыть
+                                приложение → «Сканировать QR-код» → отсканировать код привязки,
+                                который выдаёт кнопка «Подключить устройство» выше.
+                            </p>
+                        </div>
+
+                        @if (str_contains(config('app.url'), 'localhost') || str_contains(config('app.url'), '127.0.0.1'))
+                            <p class="text-xs text-amber-600 dark:text-amber-400">
+                                В QR зашит адрес <code class="font-mono">{{ config('app.url') }}</code> — с телефона
+                                он недоступен. Поменяйте <code class="font-mono">APP_URL</code> на адрес в локальной
+                                сети или на домен, иначе скачать по коду не получится.
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            @else
+                <div class="p-6">
+                    <p class="text-sm text-ink-500 dark:text-ink-400">
+                        APK ещё не собран. Соберите его один раз — панель подхватит файл
+                        из вывода сборки автоматически:
+                    </p>
+                    <pre class="code-block mt-3"><code>cd android-client
+./gradlew :app:assembleDebug</code></pre>
+                    <p class="mt-3 text-xs text-ink-400 dark:text-ink-500">
+                        Нужен <code class="font-mono">app/google-services.json</code> из вашего Firebase-проекта,
+                        иначе приложение не сможет принимать команды. Путь к готовому файлу можно
+                        переопределить переменной <code class="font-mono">GATEWAY_APK_PATH</code>.
+                    </p>
+                </div>
+            @endif
+        </section>
+
         <section class="card-flush">
             <div class="card-header">
                 <div>

@@ -4,7 +4,7 @@
             "outputFile": "tm.otpgateway.client.app-mergeDebugResources-63:/values-v23/values-v23.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\KA\\.gradle\\caches\\8.14.3\\transforms\\dfad07b1a625c107ec9d9213b854dd20\\transformed\\work-runtime-2.9.1\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\KA\\.gradle\\caches\\8.14.3\\transforms\\fbbe1f3ccdd8d4360f41bc9bbab65e7b\\transformed\\work-runtime-2.9.1\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",

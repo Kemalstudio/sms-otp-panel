@@ -42,13 +42,44 @@ class ProjectManagementTest extends TestCase
 
         $this->actingAs($user)
             ->post(route('projects.store'), ['name' => 'New Gateway'])
-            // Лендинг проекта — обзор с чек-листом запуска, а не сразу устройства.
-            ->assertRedirect(route('projects.show', $user->projects()->sole()));
+            // Первое, что нужно новому проекту, — живой телефон, поэтому сразу
+            // страница устройств с открытым QR привязки.
+            ->assertRedirect(route('projects.devices.index', $user->projects()->sole()))
+            ->assertSessionHas('show_pairing');
 
         $this->assertDatabaseHas('projects', [
             'user_id' => $user->id,
             'name' => 'New Gateway',
         ]);
+    }
+
+    public function test_a_new_project_gets_a_usable_pairing_code_right_away(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('projects.store'), ['name' => 'New Gateway']);
+
+        $code = $user->projects()->sole()->pairingCodes()->sole();
+
+        $this->assertTrue($code->isUsable());
+        $this->assertSame(6, mb_strlen($code->code));
+    }
+
+    public function test_the_devices_page_shows_that_code_as_a_qr(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('projects.store'), ['name' => 'New Gateway']);
+
+        $project = $user->projects()->sole();
+        $code = $project->pairingCodes()->sole();
+
+        $this->actingAs($user)
+            ->get(route('projects.devices.index', $project))
+            ->assertOk()
+            ->assertSee($code->code)
+            // QR рисуется инлайновым SVG, а не картинкой по ссылке.
+            ->assertSee('<svg', false);
     }
 
     public function test_a_project_name_is_required(): void

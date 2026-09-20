@@ -25,6 +25,10 @@ class DeviceController extends Controller
             'onlineThresholdMinutes' => Device::ONLINE_THRESHOLD_MINUTES,
             'throughputPerMinute' => $project->throughputPerMinute(),
             'maxThroughput' => Device::MAX_THROUGHPUT_PER_MINUTE,
+            'apk' => AppDownloadController::info(),
+            // QR со ссылкой на скачивание: оператор сидит за компьютером,
+            // а ставить приложение нужно на телефон.
+            'apkQr' => AppDownloadController::path() ? $this->qrFor(route('app.download')) : null,
             'pairingCode' => $pairingCode,
             'pairingQr' => $pairingCode?->isUsable() ? $this->qrSvg($pairingCode) : null,
         ]);
@@ -66,10 +70,15 @@ class DeviceController extends Controller
      */
     private function qrSvg(PairingCode $pairingCode): string
     {
+        return $this->qrFor($pairingCode->qrPayload());
+    }
+
+    private function qrFor(string $payload, int $size = 200): string
+    {
         return (string) QrCode::format('svg')
-            ->size(200)
+            ->size($size)
             ->margin(1)
             ->errorCorrection('M')
-            ->generate($pairingCode->qrPayload());
+            ->generate($payload);
     }
 }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Боевая политика: незашифрованный HTTP запрещён.
+
+    Через это соединение ходят номера получателей и токен устройства — по
+    открытому каналу их видит вся сеть, включая чужой Wi-Fi в кафе.
+
+    Отладочная сборка использует свой вариант этого файла из src/debug/res:
+    на этапе настройки панель живёт на http://192.168.x.x:8000, потому что
+    сертификата для локального адреса взять неоткуда.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

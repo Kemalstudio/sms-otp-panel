@@ -1,4 +1,4 @@
-<#
+﻿<#
     Останавливает процессы, запущенные start-gateway.ps1.
 
         powershell -ExecutionPolicy Bypass -File deploy\windows\stop-gateway.ps1

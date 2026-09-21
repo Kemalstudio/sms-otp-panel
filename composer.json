@@ -10,6 +10,7 @@
         "kreait/firebase-php": "^7.24",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
+        "predis/predis": "^3.6",
         "simplesoftwareio/simple-qrcode": "^4.2"
     },
     "require-dev": {

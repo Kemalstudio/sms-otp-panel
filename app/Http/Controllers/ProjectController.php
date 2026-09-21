@@ -6,19 +6,30 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Models\ApiKey;
 use App\Models\Device;
 use App\Models\OtpLog;
+use App\Models\PairingCode;
 use App\Models\Project;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class ProjectController extends Controller
 {
+    /**
+     * Создаёт проект и сразу выдаёт код привязки.
+     *
+     * Первое, что нужно новому проекту, — живой телефон: без него любой запрос
+     * кода отвечает 503. Поэтому вместо «создано, идите искать нужную кнопку»
+     * сразу открывается страница устройств с QR наготове.
+     */
     public function store(StoreProjectRequest $request): RedirectResponse
     {
         $project = $request->user()->projects()->create($request->validated());
 
+        PairingCode::issueFor($project);
+
         return redirect()
-            ->route('projects.show', $project)
-            ->with('status', 'Проект создан. Следующий шаг — подключить телефон.');
+            ->route('projects.devices.index', $project)
+            ->with('show_pairing', true)
+            ->with('status', 'Проект создан. Отсканируйте код в приложении — телефон подключится к шлюзу.');
     }
 
     /**

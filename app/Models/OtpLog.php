@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class OtpLog extends Model
 {
@@ -58,12 +59,29 @@ class OtpLog extends Model
         return $this->belongsTo(Device::class);
     }
 
+    /** Что уходило клиенту по этому коду: событие, попытки, ответы. */
+    public function webhookDeliveries(): HasMany
+    {
+        return $this->hasMany(WebhookDelivery::class)->latest();
+    }
+
     public function scopeStatus(Builder $query, ?string $status): Builder
     {
         return $query->when(
             $status && in_array($status, self::STATUSES, true),
             fn (Builder $q) => $q->where('status', $status)
         );
+    }
+
+    /**
+     * Поиск по части номера.
+     *
+     * Сравнение идёт по цифрам: в базе номер хранится как «+99365123456», а
+     * оператор может вставить его с пробелами, скобками или без кода страны.
+     */
+    public function scopeMatchingPhone(Builder $query, ?string $digits): Builder
+    {
+        return $query->when($digits, fn (Builder $q) => $q->where('phone', 'like', '%'.$digits.'%'));
     }
 
     public function isExpired(): bool

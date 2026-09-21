@@ -365,3 +365,4 @@ styleable GradientColorItem android_color android_offset
 styleable LoadingImageView circleCrop imageAspectRatio imageAspectRatioAdjust
 styleable SignInButton buttonSize colorScheme scopeUris
 xml data_extraction_rules
+xml network_security_config

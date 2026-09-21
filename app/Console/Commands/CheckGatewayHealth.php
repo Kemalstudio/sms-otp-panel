@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Controllers\SystemHealthController;
 use App\Models\Alert;
 use App\Models\Project;
 use App\Support\Alerts\AlertManager;
@@ -38,6 +39,10 @@ class CheckGatewayHealth extends Command
                 $this->checkDevicePool($alerts, $project);
                 $this->checkFailureRate($alerts, $project);
             });
+
+        // След для страницы здоровья: иначе о молчащем планировщике узнать
+        // неоткуда — он молчит одинаково и когда всё хорошо, и когда он мёртв.
+        SystemHealthController::markHealthCheck();
 
         $active = Alert::query()->active()->count();
         $this->info("Проверка завершена. Открытых аварий: {$active}.");

@@ -150,7 +150,8 @@
                     <h3 class="section-title">Устройства</h3>
                     <p class="section-hint">
                         Телефон считается офлайн, если не выходил на связь более
-                        {{ $onlineThresholdMinutes }} мин.
+                        {{ $onlineThresholdMinutes }} мин. «Скорость» — сколько SMS в минуту
+                        шлюз отдаёт этому аппарату; меняется кнопкой «Настроить».
                     </p>
                 </div>
             </div>
@@ -322,6 +323,16 @@
                     Откройте Android-приложение шлюза → «Сканировать QR-код». Код действует
                     {{ $pairingCode::LIFETIME_MINUTES }} мин и срабатывает один раз.
                 </p>
+
+                @if ($apk['available'])
+                    {{-- У нового проекта приложения на телефоне ещё нет. --}}
+                    <p class="mt-2 text-sm text-ink-500 dark:text-ink-400">
+                        Приложения на телефоне ещё нет?
+                        <a href="{{ route('app.download') }}"
+                           class="font-medium text-brand-600 hover:underline dark:text-brand-400">Скачать APK</a>
+                        — код привязки за это время успеет истечь, тогда просто сгенерируйте новый.
+                    </p>
+                @endif
 
                 <div class="mt-6 flex flex-col items-center gap-4">
                     <div class="rounded-2xl bg-white p-3 ring-1 ring-ink-200 dark:ring-ink-700">

@@ -8,6 +8,7 @@ use App\Models\Device;
 use App\Models\OtpLog;
 use App\Models\PairingCode;
 use App\Models\Project;
+use App\Support\Stats\OtpTrend;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
@@ -118,6 +119,8 @@ class ProjectController extends Controller
             // Открытые аварии — то, что уже сломано, в отличие от чек-листа,
             // который говорит о том, что ещё не настроено.
             'alerts' => $project->alerts()->active()->latest('started_at')->get(),
+            'hourly' => OtpTrend::hourly($project),
+            'daily' => OtpTrend::daily($project),
             'recentDevices' => $project->devices()->latest('last_seen_at')->take(3)->get(),
             'steps' => $steps,
             'keyPrefix' => $latestKey?->key_prefix,

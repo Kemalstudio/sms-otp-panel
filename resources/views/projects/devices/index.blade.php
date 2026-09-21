@@ -24,7 +24,8 @@
         </div>
     </x-slot>
 
-    <div class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
+    <div x-data="gatewayPulse('{{ route('projects.pulse', $project) }}')"
+         class="mx-auto max-w-7xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
         @if (session('status'))
             <x-flash>{{ session('status') }}</x-flash>
         @endif
@@ -147,7 +148,13 @@
         <section class="card-flush">
             <div class="card-header">
                 <div>
-                    <h3 class="section-title">Устройства</h3>
+                    <h3 class="section-title">
+                        Устройства
+                        <span class="ml-2 text-xs font-normal text-ink-400 dark:text-ink-500">
+                            <span x-show="! failing" x-text="updatedAt ? 'обновлено ' + ago : ''"></span>
+                            <span x-show="failing" x-cloak class="text-rose-600 dark:text-rose-400">нет связи с панелью</span>
+                        </span>
+                    </h3>
                     <p class="section-hint">
                         Телефон считается офлайн, если не выходил на связь более
                         {{ $onlineThresholdMinutes }} мин. «Скорость» — сколько SMS в минуту
@@ -165,6 +172,7 @@
                             <th class="px-6 py-3">Скорость</th>
                             <th class="px-6 py-3">Статус</th>
                             <th class="px-6 py-3">Заряд</th>
+                            <th class="px-6 py-3">Сегодня</th>
                             <th class="px-6 py-3">Последний онлайн</th>
                             <th class="px-6 py-3 text-right">Действия</th>
                         </tr>
@@ -202,14 +210,46 @@
                                     <span class="text-xs text-ink-400 dark:text-ink-500">SMS/мин</span>
                                 </td>
                                 <td class="px-6 py-4">
-                                    <x-status-badge :status="$device->effective_status" />
+                                    {{-- Значение с сервера заменяется живым, как только придёт ответ. --}}
+                                    <span x-show="! device({{ $device->id }})">
+                                        <x-status-badge :status="$device->effective_status" />
+                                    </span>
+                                    <template x-if="device({{ $device->id }})">
+                                        <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset"
+                                              :class="device({{ $device->id }}).status === 'active'
+                                                  ? 'bg-emerald-50 text-emerald-700 ring-emerald-600/20 dark:bg-emerald-400/10 dark:text-emerald-300 dark:ring-emerald-400/30'
+                                                  : 'bg-ink-50 text-ink-600 ring-ink-500/20 dark:bg-ink-400/10 dark:text-ink-300 dark:ring-ink-400/25'">
+                                            <span class="h-1.5 w-1.5 rounded-full"
+                                                  :class="device({{ $device->id }}).status === 'active' ? 'bg-emerald-500' : 'bg-ink-400'"></span>
+                                            <span x-text="device({{ $device->id }}).status === 'active' ? 'Онлайн' : 'Офлайн'"></span>
+                                        </span>
+                                    </template>
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-4 tabular-nums">
-                                    @if ($device->battery_level !== null)
-                                        <span @class([
-                                            'text-rose-600 dark:text-rose-400' => $device->battery_level < 20,
-                                            'text-ink-700 dark:text-ink-300' => $device->battery_level >= 20,
-                                        ])>{{ $device->battery_level }}%</span>
+                                    <span x-show="! device({{ $device->id }})">
+                                        @if ($device->battery_level !== null)
+                                            <span @class([
+                                                'text-rose-600 dark:text-rose-400' => $device->battery_level < 20,
+                                                'text-ink-700 dark:text-ink-300' => $device->battery_level >= 20,
+                                            ])>{{ $device->battery_level }}%</span>
+                                        @else
+                                            <span class="text-ink-400 dark:text-ink-500">—</span>
+                                        @endif
+                                    </span>
+                                    <template x-if="device({{ $device->id }})">
+                                        <span :class="device({{ $device->id }}).battery !== null && device({{ $device->id }}).battery < 20
+                                                  ? 'text-rose-600 dark:text-rose-400' : 'text-ink-700 dark:text-ink-300'"
+                                              x-text="device({{ $device->id }}).battery !== null ? device({{ $device->id }}).battery + '%' : '—'"></span>
+                                    </template>
+                                </td>
+                                <td class="whitespace-nowrap px-6 py-4 tabular-nums">
+                                    @if ($device->sent_today_count > 0)
+                                        <span class="text-ink-900 dark:text-ink-100">{{ $device->sent_today_count }}</span>
+                                        @if ($device->failed_today_count > 0)
+                                            <span class="text-rose-600 dark:text-rose-400">
+                                                · {{ $device->failed_today_count }} с ошибкой
+                                            </span>
+                                        @endif
                                     @else
                                         <span class="text-ink-400 dark:text-ink-500">—</span>
                                     @endif
@@ -234,7 +274,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7">
+                                <td colspan="8">
                                     <x-empty-state title="Устройств пока нет"
                                                    description="Установите Android-приложение шлюза на телефон с SIM-картой и отсканируйте код привязки."
                                                    icon="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3">

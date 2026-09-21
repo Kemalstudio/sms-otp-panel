@@ -21,7 +21,18 @@ class DeviceController extends Controller
 
         return view('projects.devices.index', [
             'project' => $project,
-            'devices' => $project->devices()->latest()->get(),
+            // Счётчики за сутки по каждому аппарату: умирающую SIM видно
+            // раньше, чем сработает алёрт по проекту целиком.
+            'devices' => $project->devices()
+                ->withCount([
+                    'otpLogs as sent_today_count' => fn ($query) => $query
+                        ->whereDate('created_at', now()->toDateString()),
+                    'otpLogs as failed_today_count' => fn ($query) => $query
+                        ->whereDate('created_at', now()->toDateString())
+                        ->where('status', 'failed'),
+                ])
+                ->latest()
+                ->get(),
             'onlineThresholdMinutes' => Device::ONLINE_THRESHOLD_MINUTES,
             'throughputPerMinute' => $project->throughputPerMinute(),
             'maxThroughput' => Device::MAX_THROUGHPUT_PER_MINUTE,

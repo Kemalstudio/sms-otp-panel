@@ -76,6 +76,17 @@
                     Проекты
                 </a>
 
+                @foreach ([['system.docs', 'Документация'], ['system.health', 'Здоровье']] as [$routeName, $label])
+                    <a href="{{ route($routeName) }}"
+                       @class([
+                           'hidden rounded-lg px-3 py-2 text-sm font-medium transition lg:block',
+                           'bg-ink-100 text-ink-900 dark:bg-ink-800 dark:text-ink-50' => request()->routeIs($routeName),
+                           'text-ink-500 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100' => ! request()->routeIs($routeName),
+                       ])>
+                        {{ $label }}
+                    </a>
+                @endforeach
+
                 <x-theme-toggle />
 
                 <x-dropdown align="right" width="48" contentClasses="py-1 bg-white dark:bg-ink-900">

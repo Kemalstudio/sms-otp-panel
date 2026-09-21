@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    ТОЛЬКО для отладочной сборки: Gradle подменяет одноимённый файл из
+    src/main/res, и в release он не попадает.
+
+    Здесь разрешён HTTP, потому что панель на этапе настройки работает по
+    локальному адресу вида http://192.168.1.101:8000, а выписать для него
+    сертификат неоткуда. В release-сборке остаётся строгий вариант: там панель
+    обязана быть на HTTPS.
+-->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <!-- Чтобы можно было смотреть трафик прокси-инструментами. -->
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

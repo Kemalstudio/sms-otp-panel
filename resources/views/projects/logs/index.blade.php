@@ -19,21 +19,42 @@
                 <h1 class="truncate text-2xl font-bold text-ink-900 dark:text-ink-50">{{ $project->name }}</h1>
             </div>
 
-            <form method="GET" action="{{ route('projects.logs.index', $project) }}" class="flex items-center gap-2">
-                <label for="status" class="text-sm text-ink-500 dark:text-ink-400">Статус</label>
-                <select id="status" name="status" onchange="this.form.submit()"
-                        class="rounded-xl border-ink-300 bg-white text-sm text-ink-900 shadow-sm focus:border-brand-500 focus:ring-brand-500 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100">
-                    <option value="">все</option>
-                    @foreach ($statuses as $status)
-                        <option value="{{ $status }}" @selected($activeStatus === $status)>
-                            {{ $statusLabels[$status] ?? $status }}
-                        </option>
-                    @endforeach
-                </select>
-                <noscript>
-                    <x-primary-button>Фильтр</x-primary-button>
-                </noscript>
-            </form>
+            <div class="flex flex-wrap items-center gap-2">
+                <form method="GET" action="{{ route('projects.logs.index', $project) }}"
+                      class="flex flex-wrap items-center gap-2">
+                    {{-- Поиск по номеру: с чего начинается почти любой разбор жалобы. --}}
+                    <input type="search" name="phone" value="{{ $activePhone }}"
+                           placeholder="Поиск по номеру"
+                           class="w-44 rounded-xl border-ink-300 bg-white text-sm text-ink-900 shadow-sm placeholder:text-ink-400 focus:border-brand-500 focus:ring-brand-500 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100 dark:placeholder:text-ink-600">
+
+                    <select name="status" onchange="this.form.submit()"
+                            class="rounded-xl border-ink-300 bg-white text-sm text-ink-900 shadow-sm focus:border-brand-500 focus:ring-brand-500 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100">
+                        <option value="">все статусы</option>
+                        @foreach ($statuses as $status)
+                            <option value="{{ $status }}" @selected($activeStatus === $status)>
+                                {{ $statusLabels[$status] ?? $status }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    <x-secondary-button type="submit">Найти</x-secondary-button>
+
+                    @if ($activePhone || $activeStatus)
+                        <a href="{{ route('projects.logs.index', $project) }}"
+                           class="text-sm text-ink-500 transition hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100">
+                            сбросить
+                        </a>
+                    @endif
+                </form>
+
+                <a href="{{ route('projects.logs.export', [$project, 'status' => $activeStatus, 'phone' => $activePhone]) }}"
+                   class="inline-flex items-center gap-2 rounded-xl border border-ink-300 bg-white px-3.5 py-2.5 text-sm font-semibold text-ink-700 shadow-sm transition hover:bg-ink-50 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-200 dark:hover:bg-ink-800">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    CSV
+                </a>
+            </div>
         </div>
 
         <div class="mt-5">
@@ -54,6 +75,11 @@
                         @if ($activeStatus)
                             <span class="ml-1 text-sm font-normal text-ink-500 dark:text-ink-400">
                                 · {{ $statusLabels[$activeStatus] ?? $activeStatus }}
+                            </span>
+                        @endif
+                        @if ($activePhone)
+                            <span class="ml-1 text-sm font-normal text-ink-500 dark:text-ink-400">
+                                · номер содержит «{{ $activePhone }}»
                             </span>
                         @endif
                     </h3>
@@ -77,6 +103,7 @@
                             <th class="px-6 py-3">Статус</th>
                             <th class="px-6 py-3">Создан</th>
                             <th class="px-6 py-3">Истекает</th>
+                            <th class="px-6 py-3"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-ink-100 dark:divide-ink-800">
@@ -112,10 +139,16 @@
                                 <td class="whitespace-nowrap px-6 py-4 tabular-nums text-ink-500 dark:text-ink-400">
                                     {{ $log->expires_at->format('H:i:s') }}
                                 </td>
+                                <td class="whitespace-nowrap px-6 py-4 text-right">
+                                    <a href="{{ route('projects.logs.show', [$project, $log]) }}"
+                                       class="text-sm font-semibold text-brand-600 transition hover:text-brand-500 dark:text-brand-400">
+                                        Подробно
+                                    </a>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5">
+                                <td colspan="6">
                                     <x-empty-state
                                         :title="$activeStatus ? 'С таким статусом записей нет' : 'Записей пока нет'"
                                         description="Каждый вызов /api/v1/otp/send оставляет здесь строку — от постановки в очередь до подтверждения кода."

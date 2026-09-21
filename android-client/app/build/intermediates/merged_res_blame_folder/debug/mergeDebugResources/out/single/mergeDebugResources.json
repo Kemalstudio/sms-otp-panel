@@ -1,22 +1,26 @@
 [
     {
-        "merged": "tm.otpgateway.client.app-debug-65:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "tm.otpgateway.client.app-main-67:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "C:\\Users\\KA\\.gradle\\daemon\\8.14.3\\tm.otpgateway.client.app-debug-65:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "C:\\Users\\KA\\.gradle\\daemon\\8.14.3\\tm.otpgateway.client.app-main-67:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
     },
     {
-        "merged": "tm.otpgateway.client.app-debug-65:/xml_data_extraction_rules.xml.flat",
-        "source": "tm.otpgateway.client.app-main-67:/xml/data_extraction_rules.xml"
+        "merged": "C:\\Users\\KA\\.gradle\\daemon\\8.14.3\\tm.otpgateway.client.app-debug-65:\\drawable_ic_launcher_foreground.xml.flat",
+        "source": "C:\\Users\\KA\\.gradle\\daemon\\8.14.3\\tm.otpgateway.client.app-main-67:\\drawable\\ic_launcher_foreground.xml"
     },
     {
-        "merged": "tm.otpgateway.client.app-debug-65:/drawable_ic_stat_gateway.xml.flat",
-        "source": "tm.otpgateway.client.app-main-67:/drawable/ic_stat_gateway.xml"
+        "merged": "tm.otpgateway.client.app-debug-65:/xml_network_security_config.xml.flat",
+        "source": "tm.otpgateway.client.app-debug-66:/xml/network_security_config.xml"
     },
     {
-        "merged": "tm.otpgateway.client.app-debug-65:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "tm.otpgateway.client.app-main-67:/mipmap-anydpi-v26/ic_launcher_round.xml"
+        "merged": "C:\\Users\\KA\\.gradle\\daemon\\8.14.3\\tm.otpgateway.client.app-debug-65:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "C:\\Users\\KA\\.gradle\\daemon\\8.14.3\\tm.otpgateway.client.app-main-67:\\mipmap-anydpi-v26\\ic_launcher.xml"
     },
     {
-        "merged": "tm.otpgateway.client.app-debug-65:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "tm.otpgateway.client.app-main-67:/drawable/ic_launcher_foreground.xml"
+        "merged": "C:\\Users\\KA\\.gradle\\daemon\\8.14.3\\tm.otpgateway.client.app-debug-65:\\drawable_ic_stat_gateway.xml.flat",
+        "source": "C:\\Users\\KA\\.gradle\\daemon\\8.14.3\\tm.otpgateway.client.app-main-67:\\drawable\\ic_stat_gateway.xml"
+    },
+    {
+        "merged": "C:\\Users\\KA\\.gradle\\daemon\\8.14.3\\tm.otpgateway.client.app-debug-65:\\xml_data_extraction_rules.xml.flat",
+        "source": "C:\\Users\\KA\\.gradle\\daemon\\8.14.3\\tm.otpgateway.client.app-main-67:\\xml\\data_extraction_rules.xml"
     }
 ]

@@ -20,11 +20,22 @@ class IndexOtpLogRequest extends FormRequest
     {
         return [
             'status' => ['nullable', Rule::in(OtpLog::STATUSES)],
+            // Поиск по номеру — самая частая операция поддержки: «клиент
+            // говорит, что код не пришёл».
+            'phone' => ['nullable', 'string', 'max:32'],
         ];
     }
 
     public function status(): ?string
     {
         return $this->validated('status');
+    }
+
+    /** Только цифры: оператор копирует номер откуда угодно, в любом формате. */
+    public function phone(): ?string
+    {
+        $digits = preg_replace('/\D/', '', (string) $this->validated('phone'));
+
+        return $digits === '' ? null : $digits;
     }
 }

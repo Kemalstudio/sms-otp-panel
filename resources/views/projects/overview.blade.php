@@ -153,7 +153,8 @@ CODE,
         @endif
 
         {{-- Главный ответ страницы: может ли шлюз прямо сейчас доставить код. --}}
-        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br {{ $ready ? 'from-brand-600 to-violet-700' : 'from-ink-700 to-ink-800' }} p-6 shadow-lift sm:p-8">
+        <div x-data="gatewayPulse('{{ route('projects.pulse', $project) }}')"
+             class="relative overflow-hidden rounded-2xl bg-gradient-to-br {{ $ready ? 'from-brand-600 to-violet-700' : 'from-ink-700 to-ink-800' }} p-6 shadow-lift sm:p-8">
             <div class="absolute -right-16 -top-16 h-52 w-52 rounded-full bg-white/10 blur-2xl"></div>
 
             <div class="relative flex flex-wrap items-start justify-between gap-6">
@@ -169,6 +170,11 @@ CODE,
                             {{ $ready ? 'Шлюз готов отправлять коды' : 'Шлюз ещё не готов' }}
                         </h2>
                     </div>
+
+                    <p class="mt-1 text-xs text-white/50">
+                        <span x-show="! failing" x-text="updatedAt ? 'обновлено ' + ago : 'обновляется…'"></span>
+                        <span x-show="failing" x-cloak class="text-rose-200">панель не отвечает — данные могли устареть</span>
+                    </p>
 
                     <p class="mt-2 max-w-xl text-sm text-white/80">
                         @if ($ready)
@@ -188,15 +194,18 @@ CODE,
                 <dl class="grid shrink-0 grid-cols-3 gap-6 text-white">
                     <div>
                         <dt class="text-xs uppercase tracking-wider text-white/60">Онлайн</dt>
-                        <dd class="mt-1 text-3xl font-bold tabular-nums">{{ $onlineCount }}</dd>
+                        <dd class="mt-1 text-3xl font-bold tabular-nums"
+                            x-text="data ? data.online : '{{ $onlineCount }}'">{{ $onlineCount }}</dd>
                     </div>
                     <div>
                         <dt class="text-xs uppercase tracking-wider text-white/60">Коды сегодня</dt>
-                        <dd class="mt-1 text-3xl font-bold tabular-nums">{{ $sentToday }}</dd>
+                        <dd class="mt-1 text-3xl font-bold tabular-nums"
+                            x-text="data ? data.sent_today : '{{ $sentToday }}'">{{ $sentToday }}</dd>
                     </div>
                     <div>
                         <dt class="text-xs uppercase tracking-wider text-white/60">Ошибки</dt>
-                        <dd class="mt-1 text-3xl font-bold tabular-nums">{{ $failedToday }}</dd>
+                        <dd class="mt-1 text-3xl font-bold tabular-nums"
+                            x-text="data ? data.failed_today : '{{ $failedToday }}'">{{ $failedToday }}</dd>
                     </div>
                 </dl>
             </div>
@@ -238,6 +247,43 @@ CODE,
 
         <div class="grid gap-6 lg:grid-cols-3">
             <div class="space-y-6 lg:col-span-2">
+                <section class="card-flush" x-data="{ range: 'hourly' }">
+                    <div class="card-header">
+                        <div>
+                            <h3 class="section-title">Отправки</h3>
+                            <p class="section-hint">
+                                Провал на графике сразу показывает, когда именно всё сломалось.
+                            </p>
+                        </div>
+
+                        <div class="flex gap-1 rounded-xl bg-ink-100/70 p-1 dark:bg-ink-900/70">
+                            <button type="button" x-on:click="range = 'hourly'"
+                                    :class="range === 'hourly'
+                                        ? 'bg-white text-ink-900 shadow-card dark:bg-ink-800 dark:text-ink-50'
+                                        : 'text-ink-500 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100'"
+                                    class="rounded-lg px-3 py-1.5 text-sm font-medium transition">
+                                24 часа
+                            </button>
+                            <button type="button" x-on:click="range = 'daily'"
+                                    :class="range === 'daily'
+                                        ? 'bg-white text-ink-900 shadow-card dark:bg-ink-800 dark:text-ink-50'
+                                        : 'text-ink-500 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100'"
+                                    class="rounded-lg px-3 py-1.5 text-sm font-medium transition">
+                                14 дней
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-6">
+                        <div x-show="range === 'hourly'">
+                            <x-bar-chart :series="$hourly" :label-every="4" />
+                        </div>
+                        <div x-show="range === 'daily'" x-cloak>
+                            <x-bar-chart :series="$daily" :label-every="2" />
+                        </div>
+                    </div>
+                </section>
+
                 {{-- Чек-лист запуска: четыре шага от пустого проекта до первого кода. --}}
                 <section class="card-flush">
                     <div class="card-header">

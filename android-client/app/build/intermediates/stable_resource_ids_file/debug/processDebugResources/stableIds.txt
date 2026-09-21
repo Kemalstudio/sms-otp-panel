@@ -53,6 +53,7 @@ tm.otpgateway.client:string/common_signin_button_text_long = 0x7f0b001e
 tm.otpgateway.client:string/common_signin_button_text = 0x7f0b001d
 tm.otpgateway.client:string/tooltip_description = 0x7f0b0076
 tm.otpgateway.client:string/common_google_play_services_updating_text = 0x7f0b001a
+tm.otpgateway.client:xml/network_security_config = 0x7f0e0001
 tm.otpgateway.client:string/common_google_play_services_update_title = 0x7f0b0019
 tm.otpgateway.client:style/Widget.Compat.NotificationActionText = 0x7f0c000c
 tm.otpgateway.client:style/TextAppearance.Compat.Notification.Time = 0x7f0c0008

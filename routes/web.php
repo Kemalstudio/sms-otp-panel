@@ -8,6 +8,8 @@ use App\Http\Controllers\OtpLogController;
 use App\Http\Controllers\PairingCodeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectPulseController;
+use App\Http\Controllers\SystemHealthController;
 use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +21,12 @@ Route::middleware('auth')->group(function () {
     // APK для телефона-шлюза. За авторизацией: приложение внутреннее, и его
     // адрес не должен гулять по интернету.
     Route::get('/app/download', AppDownloadController::class)->name('app.download');
+
+    // Состояние инфраструктуры под шлюзом: база, очередь, планировщик, копии.
+    Route::get('/health', SystemHealthController::class)->name('system.health');
+
+    // Справочник по API для чужого разработчика: сниппетов на обзоре мало.
+    Route::view('/docs', 'system.docs')->name('system.docs');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -39,6 +47,9 @@ Route::middleware('auth')->group(function () {
         ->group(function () {
             Route::get('/', [ProjectController::class, 'show'])->name('show');
 
+            // Живые счётчики: опрашивается открытой вкладкой раз в 15 секунд.
+            Route::get('pulse', ProjectPulseController::class)->name('pulse');
+
             Route::get('devices', [DeviceController::class, 'index'])->name('devices.index');
             Route::post('devices', [DeviceController::class, 'store'])->name('devices.store');
             Route::patch('devices/{device}', [DeviceController::class, 'update'])
@@ -56,6 +67,10 @@ Route::middleware('auth')->group(function () {
             Route::delete('api-keys/{apiKey}', [ApiKeyController::class, 'destroy'])->name('api-keys.destroy');
 
             Route::get('logs', [OtpLogController::class, 'index'])->name('logs.index');
+            Route::get('logs/export', [OtpLogController::class, 'export'])->name('logs.export');
+            Route::get('logs/{otpLog}', [OtpLogController::class, 'show'])
+                ->whereNumber('otpLog')
+                ->name('logs.show');
 
             Route::get('webhooks', [WebhookController::class, 'index'])->name('webhooks.index');
             Route::middleware('can:update,project')->group(function () {

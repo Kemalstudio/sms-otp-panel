@@ -4,6 +4,7 @@ namespace App\Jobs;
 
 use App\Exceptions\FcmDeliveryException;
 use App\Facades\Fcm;
+use App\Http\Requests\Api\SendOtpRequest;
 use App\Models\Device;
 use App\Models\OtpLog;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -76,7 +77,7 @@ class SendOtpViaFcmJob implements ShouldQueue
                 'type' => 'send_sms',
                 'otp_id' => (string) $otpLog->id,
                 'phone' => (string) $otpLog->phone,
-                'message' => "Ваш код: {$code}",
+                'message' => self::messageFor($otpLog, $code),
             ]);
         } catch (FcmDeliveryException $e) {
             $this->failover($otpLog, $e->getMessage());
@@ -86,6 +87,16 @@ class SendOtpViaFcmJob implements ShouldQueue
 
         // The plaintext copy exists only to build this one SMS body.
         $otpLog->forgetPlainCode();
+    }
+
+    /** The caller's text when it supplied one, the neutral default otherwise. */
+    public static function messageFor(OtpLog $otpLog, string $code): string
+    {
+        $template = $otpLog->message_template;
+
+        return blank($template)
+            ? "Ваш код: {$code}"
+            : str_replace(SendOtpRequest::CODE_PLACEHOLDER, $code, $template);
     }
 
     /**

@@ -103,6 +103,7 @@ class OtpController extends Controller
             'code_hash' => Hash::make($code),
             // Reversible copy, used once to build the SMS body, then nulled.
             'code_encrypted' => $code,
+            'message_template' => $request->validated('message'),
             'device_id' => $device->id,
             'phone' => $phone,
             'status' => 'pending',

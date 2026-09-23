@@ -77,6 +77,26 @@ class DeviceController extends Controller
     }
 
     /**
+     * Убирает телефон из проекта.
+     *
+     * Логи остаются: внешний ключ обнуляется, а не каскадит — история отправок
+     * нужна для разбора жалоб и сверки расходов даже после того, как аппарат
+     * сдали или потеряли.
+     *
+     * Токен устройства умирает вместе со строкой, поэтому сам телефон начнёт
+     * получать 401 на heartbeat. Это и есть отвязка со стороны панели.
+     */
+    public function destroy(Project $project, Device $device): RedirectResponse
+    {
+        $name = $device->name;
+        $device->delete();
+
+        return redirect()
+            ->route('projects.devices.index', $project)
+            ->with('status', 'Устройство «'.$name.'» удалено. Логи его отправок сохранены.');
+    }
+
+    /**
      * SVG so nothing depends on imagick/gd being present.
      */
     private function qrSvg(PairingCode $pairingCode): string
